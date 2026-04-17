@@ -436,6 +436,19 @@ input, select { font-family: inherit; font-size: 12px; }
   border: 1px solid #444; border-radius: 3px;
   padding: 4px 8px; font-family: var(--font-mono); text-transform: uppercase;
 }
+.hex-row input:focus { outline: none; border-color: var(--idc-orange); }
+.hex-row input.invalid { border-color: #ff5050; background: #3a1a1a; }
+.hex-row #btnPasteHex {
+  width: 26px; height: 26px;
+  background: #2a2a2a; color: var(--text-dim);
+  border: 1px solid #444; border-radius: 3px;
+  cursor: pointer; font-size: 12px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+}
+.hex-row #btnPasteHex:hover {
+  background: #383838; color: var(--idc-orange); border-color: var(--idc-orange);
+}
 .rgb-row {
   display: flex; gap: 4px; margin-bottom: 10px;
 }
@@ -763,6 +776,88 @@ input, select { font-family: inherit; font-size: 12px; }
 }
 .curves-readout b { color: var(--text); font-family: var(--font-mono); }
 
+/* =================== MODAL: RECORTE =================== */
+.crop-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.crop-col h4 {
+  margin: 0 0 6px 0;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--idc-orange);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.crop-row {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 4px;
+  font-size: 11px;
+}
+.crop-row label {
+  min-width: 50px;
+  color: var(--text-dim);
+}
+.crop-row input[type=number] {
+  flex: 1;
+  padding: 4px 6px;
+  background: #2a2a2a; color: var(--text);
+  border: 1px solid var(--border); border-radius: 3px;
+  font-family: var(--font-mono); font-size: 11px;
+  text-align: right;
+}
+.crop-row input[type=number]:focus { outline: none; border-color: var(--idc-orange); }
+.crop-row select {
+  flex: 1;
+  padding: 3px 6px;
+  background: #2a2a2a; color: var(--text);
+  border: 1px solid var(--border); border-radius: 3px;
+  font-size: 11px;
+}
+.crop-row span {
+  font-size: 10px; color: var(--text-faint);
+  min-width: 22px;
+}
+.crop-preset {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 6px;
+  padding: 8px;
+  background: #232323;
+  border-radius: 4px;
+}
+.crop-preset-btn {
+  padding: 3px 8px;
+  background: #383838; color: var(--text);
+  border: 1px solid #444; border-radius: 3px;
+  font-size: 10px; cursor: pointer;
+}
+.crop-preset-btn:hover {
+  background: #454545; border-color: var(--idc-orange); color: var(--idc-orange);
+}
+
+/* =================== PEN TOOL SEGMENTS =================== */
+.pen-mode-switch {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-left: 4px;
+}
+.pen-mode-switch button {
+  padding: 3px 10px;
+  background: #2a2a2a;
+  color: var(--text-dim);
+  border: none;
+  border-right: 1px solid var(--border);
+  font-size: 11px; cursor: pointer;
+}
+.pen-mode-switch button:last-child { border-right: none; }
+.pen-mode-switch button.on {
+  background: var(--idc-orange); color: #111;
+}
+.pen-mode-switch button:hover:not(.on) { background: #383838; color: var(--text); }
+
 /* =================== STATUS BAR =================== */
 #statusbar {
   position: fixed; bottom: 0; left: 0; right: 0;
@@ -1070,6 +1165,9 @@ input[type=range]::-moz-range-thumb {
     <button class="tool" data-tool="line" title="Línea (U+Shift)">
       <svg viewBox="0 0 24 24"><line x1="3" y1="20" x2="21" y2="4" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
     </button>
+    <button class="tool" data-tool="pen" title="Pluma vectorial (P)">
+      <svg viewBox="0 0 24 24"><path d="M20.7 4.3c-.4-.4-1-.4-1.4 0L17 6.6 19.4 9l2.3-2.3c.4-.4.4-1 0-1.4l-1-1zM3 20l1.5-4 11-11L18 7.5 7 18.5 3 20z" fill="currentColor"/><path d="M4 20l3-1" stroke="currentColor" stroke-width="1" fill="none"/></svg>
+    </button>
     <button class="tool" data-tool="hand" title="Mano (H)">
       <svg viewBox="0 0 24 24"><path d="M13 24c-3.6 0-6.7-2.4-7.7-5.8L2 13l1-1 4 1V3.5C7 2.7 7.7 2 8.5 2S10 2.7 10 3.5V11h1V1.5c0-.8.7-1.5 1.5-1.5s1.5.7 1.5 1.5V11h1V2.5c0-.8.7-1.5 1.5-1.5s1.5.7 1.5 1.5V11h1V5.5c0-.8.7-1.5 1.5-1.5s1.5.7 1.5 1.5V16c0 4.4-3.6 8-8 8z" fill="currentColor"/></svg>
     </button>
@@ -1114,7 +1212,8 @@ input[type=range]::-moz-range-thumb {
         <input type="color" id="colorPicker" value="#1e1e1e">
         <div class="hex-row">
           <label>HEX</label>
-          <input type="text" id="hexInput" maxlength="7" value="#1e1e1e">
+          <input type="text" id="hexInput" maxlength="9" value="#1E1E1E" placeholder="#rrggbb" title="Introduce un código hex (con o sin #, 3 o 6 dígitos). Pulsa Enter para aplicar.">
+          <button id="btnPasteHex" title="Pegar color desde el portapapeles">📋</button>
         </div>
         <div class="rgb-row">
           <span><label>R</label><input type="number" id="rIn" min="0" max="255" value="30"></span>
@@ -1212,7 +1311,7 @@ input[type=range]::-moz-range-thumb {
         </div>
         <div id="actionsTree" class="actions-tree"></div>
         <div class="actions-footer">
-          <button class="actions-io" id="btnActionsImport">Importar</button>
+          <button class="actions-io" id="btnActionsImport" title="Importar .json (IDC) o .atn (Photoshop)">Importar</button>
           <button class="actions-io" id="btnActionsExport">Exportar</button>
           <button class="actions-io" id="btnActionsResetPresets" title="Restaurar presets de fábrica">Presets</button>
         </div>
@@ -1261,6 +1360,7 @@ const State = {
   fontFamily: 'Arial',
   shapeFill: true,
   strokeWidth: 2,
+  penMode: 'polygon',  // 'polygon' | 'freehand'
   history: [],
   historyIndex: -1,
   historyMax: 30,
@@ -1506,20 +1606,104 @@ function redraw() {
   });
 }
 
+/* Animation loop para marching ants */
+let _antsOffset = 0;
+let _antsAnim = null;
+function _startAntsAnimation() {
+  if (_antsAnim) return;
+  const tick = () => {
+    if (State.selection || (State.cropBox && State.cropBox.active)) {
+      _antsOffset = (_antsOffset + 1) % 8;
+      drawSelectionOverlay();
+      _antsAnim = requestAnimationFrame(tick);
+    } else {
+      _antsAnim = null;
+    }
+  };
+  _antsAnim = requestAnimationFrame(tick);
+}
+
 function drawSelectionOverlay() {
   ctxOverlay.clearRect(0, 0, dom.overlay.width, dom.overlay.height);
+  // Línea más gruesa cuando el zoom es bajo, para garantizar visibilidad
+  const lw = State.zoom >= 1 ? 1 : Math.max(1, 1/State.zoom);
+
   if (State.selection) {
     const s = State.selection;
     ctxOverlay.save();
-    ctxOverlay.lineWidth = 1;
+    ctxOverlay.lineWidth = lw;
+    // Capa negra
     ctxOverlay.strokeStyle = '#000';
-    ctxOverlay.setLineDash([4,4]);
-    ctxOverlay.strokeRect(s.x+0.5, s.y+0.5, s.w, s.h);
+    ctxOverlay.setLineDash([4, 4]);
+    ctxOverlay.lineDashOffset = -_antsOffset;
+    ctxOverlay.strokeRect(s.x + 0.5, s.y + 0.5, s.w, s.h);
+    // Capa blanca desfasada
     ctxOverlay.strokeStyle = '#fff';
-    ctxOverlay.lineDashOffset = 4;
-    ctxOverlay.strokeRect(s.x+0.5, s.y+0.5, s.w, s.h);
+    ctxOverlay.lineDashOffset = -_antsOffset + 4;
+    ctxOverlay.strokeRect(s.x + 0.5, s.y + 0.5, s.w, s.h);
     ctxOverlay.restore();
+    _startAntsAnimation();
   }
+
+  // Crop box interactivo
+  if (State.cropBox && State.cropBox.active) {
+    const c = State.cropBox;
+    ctxOverlay.save();
+    // Velado oscuro fuera del recorte
+    ctxOverlay.fillStyle = 'rgba(0,0,0,0.45)';
+    ctxOverlay.fillRect(0, 0, State.doc.width, c.y);
+    ctxOverlay.fillRect(0, c.y, c.x, c.h);
+    ctxOverlay.fillRect(c.x + c.w, c.y, State.doc.width - (c.x + c.w), c.h);
+    ctxOverlay.fillRect(0, c.y + c.h, State.doc.width, State.doc.height - (c.y + c.h));
+    // Borde
+    ctxOverlay.lineWidth = lw;
+    ctxOverlay.strokeStyle = '#000';
+    ctxOverlay.setLineDash([4, 4]);
+    ctxOverlay.lineDashOffset = -_antsOffset;
+    ctxOverlay.strokeRect(c.x + 0.5, c.y + 0.5, c.w, c.h);
+    ctxOverlay.strokeStyle = '#fff';
+    ctxOverlay.lineDashOffset = -_antsOffset + 4;
+    ctxOverlay.strokeRect(c.x + 0.5, c.y + 0.5, c.w, c.h);
+    // Tiradores en esquinas y puntos medios
+    ctxOverlay.setLineDash([]);
+    const hs = Math.max(4, 6 / State.zoom);
+    ctxOverlay.fillStyle = '#fff';
+    ctxOverlay.strokeStyle = '#000';
+    ctxOverlay.lineWidth = lw;
+    const handles = _cropHandles(c);
+    for (const h of handles) {
+      ctxOverlay.fillRect(h.x - hs/2, h.y - hs/2, hs, hs);
+      ctxOverlay.strokeRect(h.x - hs/2, h.y - hs/2, hs, hs);
+    }
+    // Tercios (regla de los tercios)
+    ctxOverlay.strokeStyle = 'rgba(255,255,255,0.35)';
+    ctxOverlay.lineWidth = lw * 0.7;
+    ctxOverlay.setLineDash([]);
+    ctxOverlay.beginPath();
+    ctxOverlay.moveTo(c.x + c.w/3, c.y); ctxOverlay.lineTo(c.x + c.w/3, c.y + c.h);
+    ctxOverlay.moveTo(c.x + 2*c.w/3, c.y); ctxOverlay.lineTo(c.x + 2*c.w/3, c.y + c.h);
+    ctxOverlay.moveTo(c.x, c.y + c.h/3); ctxOverlay.lineTo(c.x + c.w, c.y + c.h/3);
+    ctxOverlay.moveTo(c.x, c.y + 2*c.h/3); ctxOverlay.lineTo(c.x + c.w, c.y + 2*c.h/3);
+    ctxOverlay.stroke();
+    ctxOverlay.restore();
+    _startAntsAnimation();
+  }
+
+  // Preview de pluma
+  if (State.penPreview) _drawPenPreview();
+}
+
+function _cropHandles(c) {
+  return [
+    { x: c.x,         y: c.y,         k: 'nw' },
+    { x: c.x + c.w/2, y: c.y,         k: 'n'  },
+    { x: c.x + c.w,   y: c.y,         k: 'ne' },
+    { x: c.x + c.w,   y: c.y + c.h/2, k: 'e'  },
+    { x: c.x + c.w,   y: c.y + c.h,   k: 'se' },
+    { x: c.x + c.w/2, y: c.y + c.h,   k: 's'  },
+    { x: c.x,         y: c.y + c.h,   k: 'sw' },
+    { x: c.x,         y: c.y + c.h/2, k: 'w'  },
+  ];
 }
 
 function drawRulers() {
@@ -2077,42 +2261,237 @@ Tools.lasso = {
   }
 };
 
-// === CROP ===
+// === CROP (interactivo con tiradores y modal de medidas) ===
 Tools.crop = {
-  start: null,
+  dragging: null, // 'new' | handle key ('nw','n',...) | 'move'
+  offsetX: 0, offsetY: 0,
   onDown(p, e) {
-    this.start = { x: Math.floor(p.x), y: Math.floor(p.y) };
-    State.selection = null;
+    if (!State.doc) return;
+    const c = State.cropBox;
+    if (c && c.active) {
+      // ¿Click sobre un tirador?
+      const hs = Math.max(6, 8 / State.zoom);
+      const handles = _cropHandles(c);
+      for (const h of handles) {
+        if (Math.abs(h.x - p.x) <= hs && Math.abs(h.y - p.y) <= hs) {
+          this.dragging = h.k;
+          return;
+        }
+      }
+      // ¿Click dentro de la caja? mover
+      if (p.x >= c.x && p.x <= c.x + c.w && p.y >= c.y && p.y <= c.y + c.h) {
+        this.dragging = 'move';
+        this.offsetX = p.x - c.x;
+        this.offsetY = p.y - c.y;
+        return;
+      }
+    }
+    // Nueva caja
+    State.cropBox = { x: Math.floor(p.x), y: Math.floor(p.y), w: 0, h: 0, active: true, _sx: p.x, _sy: p.y };
+    this.dragging = 'new';
+    drawSelectionOverlay();
   },
   onMove(p, e) {
-    if (!this.start) return;
-    const x1 = this.start.x, y1 = this.start.y;
-    const x2 = Math.floor(p.x), y2 = Math.floor(p.y);
-    State.selection = {
-      x: Math.min(x1,x2), y: Math.min(y1,y2),
-      w: Math.abs(x2-x1), h: Math.abs(y2-y1),
-    };
+    if (!this.dragging || !State.cropBox) return;
+    const c = State.cropBox;
+    const D = State.doc;
+    const clampX = x => Math.max(0, Math.min(D.width,  x));
+    const clampY = y => Math.max(0, Math.min(D.height, y));
+    if (this.dragging === 'new') {
+      const x1 = c._sx, y1 = c._sy;
+      const x2 = clampX(p.x), y2 = clampY(p.y);
+      c.x = Math.floor(Math.min(x1, x2));
+      c.y = Math.floor(Math.min(y1, y2));
+      c.w = Math.ceil(Math.abs(x2 - x1));
+      c.h = Math.ceil(Math.abs(y2 - y1));
+    } else if (this.dragging === 'move') {
+      c.x = Math.floor(clampX(p.x - this.offsetX));
+      c.y = Math.floor(clampY(p.y - this.offsetY));
+      c.x = Math.min(c.x, D.width - c.w);
+      c.y = Math.min(c.y, D.height - c.h);
+    } else {
+      // Tiradores
+      const k = this.dragging;
+      const right  = c.x + c.w;
+      const bottom = c.y + c.h;
+      let nx = c.x, ny = c.y, nr = right, nb = bottom;
+      const px = clampX(p.x), py = clampY(p.y);
+      if (k.includes('n')) ny = Math.min(py, bottom - 4);
+      if (k.includes('s')) nb = Math.max(py, c.y + 4);
+      if (k.includes('w')) nx = Math.min(px, right - 4);
+      if (k.includes('e')) nr = Math.max(px, c.x + 4);
+      c.x = Math.floor(nx); c.y = Math.floor(ny);
+      c.w = Math.ceil(nr - c.x);
+      c.h = Math.ceil(nb - c.y);
+    }
     drawSelectionOverlay();
   },
   onUp(p, e) {
-    if (!this.start) return;
-    this.start = null;
-    // Wait for double click or Enter to commit; auto-commit on release if drag big enough
-    if (State.selection && State.selection.w > 4 && State.selection.h > 4) {
-      // Show prompt to confirm
-      if (confirm(`¿Recortar a ${State.selection.w}×${State.selection.h} px?`)) {
-        cropToSelection();
-      } else {
-        State.selection = null;
-        drawSelectionOverlay();
-      }
+    if (this.dragging === 'new' && State.cropBox && (State.cropBox.w < 4 || State.cropBox.h < 4)) {
+      State.cropBox = null;
+      drawSelectionOverlay();
     }
-  }
+    this.dragging = null;
+  },
 };
 
-function cropToSelection() {
-  if (!State.selection) return;
-  const { x, y, w, h } = State.selection;
+function commitCrop() {
+  if (!State.cropBox || !State.cropBox.active) {
+    showToast('Dibuja primero un área de recorte','error');
+    return;
+  }
+  modalCropDimensions();
+}
+
+function cancelCrop() {
+  State.cropBox = null;
+  drawSelectionOverlay();
+}
+
+function modalCropDimensions() {
+  const c = State.cropBox;
+  if (!c || !State.doc) return;
+  const dpi = State.doc.dpi || 72;
+  const pxToMm = (px) => (px / dpi) * 25.4;
+  const mmToPx = (mm) => (mm / 25.4) * dpi;
+
+  const html = `
+    <div class="modal-header"><h2>Recortar imagen</h2><button class="modal-close">×</button></div>
+    <div class="modal-body" style="min-width:380px">
+      <div class="crop-grid">
+        <div class="crop-col">
+          <h4>Posición</h4>
+          <div class="crop-row"><label>X</label><input type="number" id="cbX" value="${c.x}" min="0" max="${State.doc.width}"><span>px</span></div>
+          <div class="crop-row"><label>Y</label><input type="number" id="cbY" value="${c.y}" min="0" max="${State.doc.height}"><span>px</span></div>
+        </div>
+        <div class="crop-col">
+          <h4>Tamaño</h4>
+          <div class="crop-row"><label>Ancho</label><input type="number" id="cbW" value="${c.w}" min="1"><span>px</span></div>
+          <div class="crop-row"><label>Alto</label><input type="number" id="cbH" value="${c.h}" min="1"><span>px</span></div>
+        </div>
+      </div>
+      <div class="crop-grid" style="margin-top:10px">
+        <div class="crop-col">
+          <h4>En milímetros</h4>
+          <div class="crop-row"><label>Ancho</label><input type="number" id="cbWmm" step="0.1" value="${pxToMm(c.w).toFixed(2)}"><span>mm</span></div>
+          <div class="crop-row"><label>Alto</label><input type="number" id="cbHmm" step="0.1" value="${pxToMm(c.h).toFixed(2)}"><span>mm</span></div>
+        </div>
+        <div class="crop-col">
+          <h4>Resolución</h4>
+          <div class="crop-row"><label>DPI</label><input type="number" id="cbDpi" value="${dpi}" min="36" max="2400"><span>ppp</span></div>
+          <div class="crop-row" style="margin-top:8px">
+            <label style="flex:1">Proporción</label>
+            <select id="cbRatio" style="flex:1">
+              <option value="free">Libre</option>
+              <option value="1:1">1 : 1 (cuadrado)</option>
+              <option value="4:3">4 : 3</option>
+              <option value="3:2">3 : 2 (foto)</option>
+              <option value="16:9">16 : 9</option>
+              <option value="9:16">9 : 16 (historia)</option>
+              <option value="a4">A4 (1 : √2)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="crop-preset" style="margin-top:10px">
+        <span style="font-size:10px; color:var(--text-faint)">Presets rápidos:</span>
+        <button class="crop-preset-btn" data-preset="ig1">Instagram 1080×1080</button>
+        <button class="crop-preset-btn" data-preset="ig9">Historia 1080×1920</button>
+        <button class="crop-preset-btn" data-preset="fhd">Full HD 1920×1080</button>
+        <button class="crop-preset-btn" data-preset="a4p">A4 vertical 300 ppp</button>
+      </div>
+      <div style="margin-top:8px; padding:8px; background:#232323; border-radius:4px; font-size:10px; color:var(--text-faint)">
+        <strong>Imagen original:</strong> ${State.doc.width} × ${State.doc.height} px
+        · <strong>Salida:</strong> <span id="cbOut">${c.w} × ${c.h} px</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn" data-cancel>Cancelar</button>
+      <button class="modal-btn primary" data-ok>Recortar</button>
+    </div>`;
+  showModal(html, {
+    onMount(m, close) {
+      const elX  = m.querySelector('#cbX');
+      const elY  = m.querySelector('#cbY');
+      const elW  = m.querySelector('#cbW');
+      const elH  = m.querySelector('#cbH');
+      const elWm = m.querySelector('#cbWmm');
+      const elHm = m.querySelector('#cbHmm');
+      const elDpi= m.querySelector('#cbDpi');
+      const elR  = m.querySelector('#cbRatio');
+      const elOut= m.querySelector('#cbOut');
+      let syncing = false;
+
+      const recalcMm = () => {
+        syncing = true;
+        const d = +elDpi.value || 72;
+        elWm.value = ((+elW.value) / d * 25.4).toFixed(2);
+        elHm.value = ((+elH.value) / d * 25.4).toFixed(2);
+        elOut.textContent = `${+elW.value} × ${+elH.value} px`;
+        syncing = false;
+      };
+      const recalcPx = () => {
+        if (syncing) return;
+        syncing = true;
+        const d = +elDpi.value || 72;
+        elW.value = Math.round((+elWm.value) / 25.4 * d);
+        elH.value = Math.round((+elHm.value) / 25.4 * d);
+        elOut.textContent = `${+elW.value} × ${+elH.value} px`;
+        syncing = false;
+      };
+      const applyRatio = () => {
+        const r = elR.value;
+        if (r === 'free') return;
+        const ratios = { '1:1':1, '4:3':4/3, '3:2':3/2, '16:9':16/9, '9:16':9/16, 'a4':Math.sqrt(2) };
+        const ratio = ratios[r] || ratios[r.toLowerCase()] || 1;
+        // Ajusta alto en función del ancho actual
+        elH.value = Math.round((+elW.value) / ratio);
+        recalcMm();
+      };
+
+      elX.oninput = () => { /* solo pos */ };
+      elY.oninput = () => { /* solo pos */ };
+      elW.oninput = () => { recalcMm(); if (elR.value!=='free') applyRatio(); };
+      elH.oninput = () => { recalcMm(); };
+      elWm.oninput = recalcPx;
+      elHm.oninput = recalcPx;
+      elDpi.oninput = recalcMm;
+      elR.onchange = applyRatio;
+
+      m.querySelectorAll('[data-preset]').forEach(b => {
+        b.onclick = () => {
+          const p = b.dataset.preset;
+          const presets = {
+            ig1: { w: 1080, h: 1080, dpi: 72 },
+            ig9: { w: 1080, h: 1920, dpi: 72 },
+            fhd: { w: 1920, h: 1080, dpi: 72 },
+            a4p: { w: 2480, h: 3508, dpi: 300 },
+          };
+          const pr = presets[p]; if (!pr) return;
+          elW.value = pr.w; elH.value = pr.h; elDpi.value = pr.dpi;
+          recalcMm();
+        };
+      });
+
+      m.querySelector('[data-cancel]').onclick = () => close(null);
+      m.querySelector('[data-ok]').onclick = () => {
+        // Clampear a los límites
+        const x = Math.max(0, Math.min(State.doc.width  - 1, +elX.value));
+        const y = Math.max(0, Math.min(State.doc.height - 1, +elY.value));
+        const w = Math.max(1, Math.min(State.doc.width  - x, +elW.value));
+        const h = Math.max(1, Math.min(State.doc.height - y, +elH.value));
+        State.cropBox = { x, y, w, h, active: true };
+        State.doc.dpi = +elDpi.value || 72;
+        applyCropFromBox();
+        close(true);
+      };
+    }
+  });
+}
+
+function applyCropFromBox() {
+  if (!State.cropBox || !State.cropBox.active) return;
+  const { x, y, w, h } = State.cropBox;
   for (const L of State.doc.layers) {
     const tmp = document.createElement('canvas');
     tmp.width = w; tmp.height = h;
@@ -2123,11 +2502,20 @@ function cropToSelection() {
   }
   State.doc.width = w;
   State.doc.height = h;
+  State.cropBox = null;
   State.selection = null;
   resizeMainCanvas();
   redraw();
+  drawSelectionOverlay();
   historyPush('Recortar');
-  showToast(`Recortado a ${w}×${h}`);
+  recordOp('transform.crop_to_box', { w, h });
+  showToast(`Recortado a ${w}×${h} px`, 'success');
+}
+
+function cropToSelection() {
+  if (!State.selection) return;
+  State.cropBox = { ...State.selection, active: true };
+  modalCropDimensions();
 }
 
 // === TEXT ===
@@ -2177,6 +2565,172 @@ Tools.text = {
   onMove() {}, onUp() {}
 };
 
+// === PEN (pluma vectorial con modo polígono + mano alzada) ===
+Tools.pen = {
+  onDown(p, e) {
+    if (!activeLayer()) return;
+    if (State.penMode === 'freehand') {
+      // Trazo libre
+      State.penFree = [{ x: p.x, y: p.y }];
+      State.penPreview = true;
+      drawSelectionOverlay();
+    } else {
+      // Polígono: click añade vértice
+      if (!State.penPoints) State.penPoints = [];
+      // Si el click está muy cerca del primer punto y hay al menos 3 puntos, cerrar
+      if (State.penPoints.length >= 3) {
+        const p0 = State.penPoints[0];
+        const dist = Math.hypot(p.x - p0.x, p.y - p0.y);
+        if (dist < 8 / State.zoom) { penCommit(true); return; }
+      }
+      State.penPoints.push({ x: p.x, y: p.y });
+      State.penPreview = true;
+      State.penCursor = { x: p.x, y: p.y };
+      drawSelectionOverlay();
+    }
+  },
+  onMove(p, e) {
+    if (State.penMode === 'freehand' && State.penFree) {
+      State.penFree.push({ x: p.x, y: p.y });
+      drawSelectionOverlay();
+    } else if (State.penPoints) {
+      // Preview hacia donde va el cursor
+      State.penCursor = { x: p.x, y: p.y };
+      drawSelectionOverlay();
+    }
+  },
+  onUp(p, e) {
+    if (State.penMode === 'freehand' && State.penFree) {
+      if (State.penFree.length >= 2) {
+        penCommitFree();
+      } else {
+        State.penFree = null;
+        State.penPreview = false;
+        drawSelectionOverlay();
+      }
+    }
+  },
+};
+
+/* Render del trazado en curso sobre el overlay */
+function _drawPenPreview() {
+  const lw = Math.max(1, 1.2/State.zoom);
+  if (State.penMode === 'freehand' && State.penFree && State.penFree.length) {
+    const pts = State.penFree;
+    ctxOverlay.save();
+    ctxOverlay.lineWidth = Math.max(State.strokeWidth || 2, lw);
+    ctxOverlay.strokeStyle = State.fgColor;
+    ctxOverlay.lineCap = 'round'; ctxOverlay.lineJoin = 'round';
+    ctxOverlay.beginPath();
+    ctxOverlay.moveTo(pts[0].x, pts[0].y);
+    for (let i=1; i<pts.length; i++) ctxOverlay.lineTo(pts[i].x, pts[i].y);
+    ctxOverlay.stroke();
+    ctxOverlay.restore();
+    return;
+  }
+  if (!State.penPoints || State.penPoints.length === 0) return;
+  const pts = State.penPoints;
+  ctxOverlay.save();
+  // Líneas entre vértices confirmados
+  ctxOverlay.lineWidth = lw;
+  ctxOverlay.strokeStyle = State.fgColor;
+  ctxOverlay.setLineDash([]);
+  ctxOverlay.beginPath();
+  ctxOverlay.moveTo(pts[0].x, pts[0].y);
+  for (let i=1; i<pts.length; i++) ctxOverlay.lineTo(pts[i].x, pts[i].y);
+  ctxOverlay.stroke();
+  // Línea punteada desde último vértice hasta el cursor
+  if (State.penCursor) {
+    ctxOverlay.setLineDash([3, 3]);
+    ctxOverlay.strokeStyle = 'rgba(243,161,0,0.85)';
+    ctxOverlay.beginPath();
+    ctxOverlay.moveTo(pts[pts.length-1].x, pts[pts.length-1].y);
+    ctxOverlay.lineTo(State.penCursor.x, State.penCursor.y);
+    ctxOverlay.stroke();
+  }
+  ctxOverlay.setLineDash([]);
+  // Vértices como cuadritos
+  const sq = Math.max(4, 5/State.zoom);
+  ctxOverlay.fillStyle = '#fff';
+  ctxOverlay.strokeStyle = '#000';
+  ctxOverlay.lineWidth = lw;
+  pts.forEach((pt, idx) => {
+    ctxOverlay.fillRect(pt.x - sq/2, pt.y - sq/2, sq, sq);
+    ctxOverlay.strokeRect(pt.x - sq/2, pt.y - sq/2, sq, sq);
+    // Primer punto en naranja
+    if (idx === 0) {
+      ctxOverlay.fillStyle = 'var(--idc-orange)'; // fallback no aplica en canvas
+      ctxOverlay.fillStyle = '#f3a100';
+      ctxOverlay.fillRect(pt.x - sq/2 + 1, pt.y - sq/2 + 1, sq - 2, sq - 2);
+      ctxOverlay.fillStyle = '#fff';
+    }
+  });
+  ctxOverlay.restore();
+}
+
+function penCommit(closed) {
+  const pts = State.penPoints;
+  if (!pts || pts.length < 2 || !activeLayer()) { penCancel(); return; }
+  if (activeLayer().locked) {
+    showToast(`Capa "${activeLayer().name}" bloqueada`, 'error');
+    penCancel(); return;
+  }
+  const L = activeLayer();
+  L.ctx.save();
+  L.ctx.lineWidth = State.strokeWidth || 2;
+  L.ctx.strokeStyle = State.fgColor;
+  L.ctx.fillStyle = State.fgColor;
+  L.ctx.lineCap = 'round';
+  L.ctx.lineJoin = 'round';
+  L.ctx.beginPath();
+  L.ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i=1; i<pts.length; i++) L.ctx.lineTo(pts[i].x, pts[i].y);
+  if (closed) { L.ctx.closePath(); if (State.shapeFill) L.ctx.fill(); }
+  L.ctx.stroke();
+  L.ctx.restore();
+  State.penPoints = null;
+  State.penCursor = null;
+  State.penPreview = false;
+  redraw();
+  drawSelectionOverlay();
+  historyPush(closed ? 'Polígono (cerrado)' : 'Trazado (abierto)');
+  recordOp('pen.polygon', { points: pts.map(p => [Math.round(p.x), Math.round(p.y)]), closed, fill: !!State.shapeFill, stroke: State.fgColor, width: State.strokeWidth||2 });
+}
+
+function penCommitFree() {
+  const pts = State.penFree;
+  if (!pts || pts.length < 2 || !activeLayer()) { State.penFree = null; State.penPreview = false; drawSelectionOverlay(); return; }
+  if (activeLayer().locked) {
+    showToast(`Capa "${activeLayer().name}" bloqueada`, 'error');
+    State.penFree = null; State.penPreview = false; drawSelectionOverlay(); return;
+  }
+  const L = activeLayer();
+  L.ctx.save();
+  L.ctx.lineWidth = State.strokeWidth || 2;
+  L.ctx.strokeStyle = State.fgColor;
+  L.ctx.lineCap = 'round';
+  L.ctx.lineJoin = 'round';
+  L.ctx.beginPath();
+  L.ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i=1; i<pts.length; i++) L.ctx.lineTo(pts[i].x, pts[i].y);
+  L.ctx.stroke();
+  L.ctx.restore();
+  State.penFree = null;
+  State.penPreview = false;
+  redraw();
+  drawSelectionOverlay();
+  historyPush('Trazo a mano alzada');
+  recordOp('pen.freehand', { pointCount: pts.length, stroke: State.fgColor, width: State.strokeWidth||2 });
+}
+
+function penCancel() {
+  State.penPoints = null;
+  State.penCursor = null;
+  State.penFree = null;
+  State.penPreview = false;
+  drawSelectionOverlay();
+}
+
 // === HAND === (pan)
 Tools.hand = {
   startScroll: null, startMouse: null,
@@ -2206,18 +2760,28 @@ Tools.zoom = {
 };
 
 /* ---------- COLOR HELPERS ---------- */
+function normalizeHex(hex) {
+  if (typeof hex !== 'string') return null;
+  let s = hex.trim().replace(/^#/, '').toLowerCase();
+  if (!/^[0-9a-f]+$/.test(s)) return null;
+  if (s.length === 3) s = s.split('').map(c => c+c).join(''); // abc → aabbcc
+  if (s.length !== 6) return null;
+  return '#' + s;
+}
+
 function setColor(hex, target='fg') {
-  if (!/^#[0-9a-f]{6}$/i.test(hex)) return;
+  const normalized = normalizeHex(hex);
+  if (!normalized) return;
   if (target === 'fg') {
-    State.fgColor = hex;
-    dom.fgColor.style.background = hex;
-    dom.colorPicker.value = hex;
-    dom.hexInput.value = hex.toUpperCase();
-    const rgb = hexToRgb(hex);
+    State.fgColor = normalized;
+    dom.fgColor.style.background = normalized;
+    dom.colorPicker.value = normalized;
+    dom.hexInput.value = normalized.toUpperCase();
+    const rgb = hexToRgb(normalized);
     dom.rIn.value = rgb.r; dom.gIn.value = rgb.g; dom.bIn.value = rgb.b;
   } else {
-    State.bgColor = hex;
-    dom.bgColor.style.background = hex;
+    State.bgColor = normalized;
+    dom.bgColor.style.background = normalized;
   }
 }
 
@@ -2399,7 +2963,45 @@ function renderOptionsBar() {
       </div>
     `;
   } else if (T === 'crop') {
-    html = `<div class="opt-group"><label>Arrastra para recortar. Confirma soltando el botón.</label></div>`;
+    html = `
+      <div class="opt-group">
+        <label>Dibuja un área en el lienzo</label>
+      </div>
+      <div class="opt-divider"></div>
+      <div class="opt-group">
+        <button class="opt-btn" id="optCropApply">✓ Aplicar recorte (Enter)</button>
+        <button class="opt-btn" id="optCropCancel">✕ Cancelar (Esc)</button>
+      </div>
+    `;
+  } else if (T === 'pen') {
+    html = `
+      <div class="opt-group">
+        <label>Modo</label>
+        <div class="pen-mode-switch">
+          <button data-pen-mode="polygon" class="${(State.penMode||'polygon')==='polygon'?'on':''}">Poligonal</button>
+          <button data-pen-mode="freehand" class="${State.penMode==='freehand'?'on':''}">A mano alzada</button>
+        </div>
+      </div>
+      <div class="opt-divider"></div>
+      <div class="opt-group">
+        <label>Grosor</label>
+        <input type="range" id="optStroke" min="1" max="50" value="${State.strokeWidth}">
+        <span class="opt-val" id="optStrokeVal">${State.strokeWidth}px</span>
+      </div>
+      <div class="opt-divider"></div>
+      <div class="opt-group">
+        <label>Relleno</label>
+        <select id="optFill">
+          <option value="stroke" ${!State.shapeFill?'selected':''}>Solo contorno</option>
+          <option value="fill" ${State.shapeFill?'selected':''}>Contorno + relleno</option>
+        </select>
+      </div>
+      <div class="opt-divider"></div>
+      <div class="opt-group">
+        <button class="opt-btn" id="optPenClose">Cerrar trazado (Enter)</button>
+        <button class="opt-btn" id="optPenCancel">Cancelar (Esc)</button>
+      </div>
+    `;
   } else if (T === 'marquee' || T === 'lasso') {
     html = `
       <div class="opt-group">
@@ -2434,6 +3036,21 @@ function bindOptionsBar() {
   if (fs) fs.oninput = (e) => { State.fontSize = +e.target.value; };
   const tol = $('#optTolerance');
   if (tol) tol.oninput = (e) => { $('#optToleranceVal').textContent = e.target.value; State.bucketTolerance = +e.target.value; };
+  const cropA = $('#optCropApply');
+  if (cropA) cropA.onclick = () => commitCrop();
+  const cropC = $('#optCropCancel');
+  if (cropC) cropC.onclick = () => cancelCrop();
+  const penClose = $('#optPenClose');
+  if (penClose) penClose.onclick = () => penCommit(true);
+  const penCancelBtn = $('#optPenCancel');
+  if (penCancelBtn) penCancelBtn.onclick = () => penCancel();
+  document.querySelectorAll('[data-pen-mode]').forEach(b => {
+    b.onclick = () => {
+      State.penMode = b.dataset.penMode;
+      penCancel();
+      renderOptionsBar();
+    };
+  });
 }
 
 /* ---------- SELECTION OPS ---------- */
@@ -3990,6 +4607,52 @@ const ACTION_OPS = {
   'export.png':         { label: 'Exportar PNG',  exec: () => exportImage('png') },
   'export.jpeg':        { label: 'Exportar JPG',  exec: () => exportImage('jpeg') },
   'export.webp':        { label: 'Exportar WebP', exec: () => exportImage('webp') },
+
+  // Crop preciso (con caja ya definida)
+  'transform.crop_to_box': {
+    label: 'Recortar a dimensiones',
+    exec: (p) => {
+      if (!State.doc) return;
+      const w = Math.max(1, Math.min(State.doc.width, +p.w||100));
+      const h = Math.max(1, Math.min(State.doc.height, +p.h||100));
+      const x = Math.max(0, Math.min(State.doc.width - w, +p.x||0));
+      const y = Math.max(0, Math.min(State.doc.height - h, +p.y||0));
+      State.cropBox = { x, y, w, h, active: true };
+      applyCropFromBox();
+    },
+  },
+
+  // Pluma
+  'pen.polygon': {
+    label: 'Polígono vectorial',
+    exec: (p) => {
+      const L = activeLayer(); if (!L || L.locked) return;
+      const pts = (p.points||[]).map(a => ({ x: a[0], y: a[1] }));
+      if (pts.length < 2) return;
+      L.ctx.save();
+      L.ctx.strokeStyle = p.stroke || State.fgColor;
+      L.ctx.fillStyle = p.stroke || State.fgColor;
+      L.ctx.lineWidth = +p.width || 2;
+      L.ctx.lineCap = 'round'; L.ctx.lineJoin = 'round';
+      L.ctx.beginPath();
+      L.ctx.moveTo(pts[0].x, pts[0].y);
+      for (let i=1; i<pts.length; i++) L.ctx.lineTo(pts[i].x, pts[i].y);
+      if (p.closed) { L.ctx.closePath(); if (p.fill) L.ctx.fill(); }
+      L.ctx.stroke();
+      L.ctx.restore();
+      redraw();
+      historyPush('Polígono (acción)');
+    },
+  },
+  'pen.freehand': {
+    label: 'Trazo a mano alzada',
+    exec: () => showToast('Los trazos a mano alzada no pueden reproducirse exactamente','error'),
+  },
+  // Placeholder para pasos .atn que no se pueden traducir
+  'atn.note': {
+    label: 'Paso ATN (manual)',
+    exec: (p) => showToast(`Paso ATN "${p && p.name || 'sin nombre'}" requiere implementación manual`, 'error'),
+  },
 };
 
 /* Helpers used by ACTION_OPS */
@@ -4371,33 +5034,322 @@ function actionsExport() {
 
 function actionsImport() {
   const inp = document.createElement('input');
-  inp.type = 'file'; inp.accept = '.json,application/json';
+  inp.type = 'file';
+  inp.accept = '.json,application/json,.atn';
   inp.onchange = () => {
     const f = inp.files[0]; if (!f) return;
     const reader = new FileReader();
+    const isAtn = /\.atn$/i.test(f.name);
     reader.onload = e => {
       try {
-        const data = JSON.parse(e.target.result);
-        if (!data || !Array.isArray(data.sets)) throw new Error('Formato inválido');
-        // Append rather than replace
-        for (const s of data.sets) {
-          s.id = actId();
-          for (const a of s.actions||[]) {
-            a.id = actId();
-            for (const st of a.steps||[]) st.id = actId();
+        if (isAtn) {
+          const result = parseATN(new Uint8Array(e.target.result));
+          if (!result || !result.actions || !result.actions.length) {
+            throw new Error('No se encontraron acciones en el archivo');
           }
-          State.actions.sets.push(s);
+          // Crear conjunto IDC a partir del .atn
+          const newSet = {
+            id: actId(),
+            name: result.setName || f.name.replace(/\.atn$/i,''),
+            expanded: true,
+            actions: result.actions.map(a => ({
+              id: actId(),
+              name: a.name,
+              shortcut: a.shortcut || '',
+              expanded: false,
+              enabled: true,
+              steps: (a.events && a.events.length)
+                ? a.events.map(ev => ({
+                    id: actId(),
+                    op: 'atn.note',
+                    params: { name: ev },
+                    enabled: false,  // deshabilitados por defecto (son placeholders)
+                  }))
+                : [],
+            })),
+          };
+          State.actions.sets.push(newSet);
+          actionsPersist();
+          actionsRender();
+          modalATNImportReport(result, newSet.name);
+        } else {
+          const data = JSON.parse(e.target.result);
+          if (!data || !Array.isArray(data.sets)) throw new Error('Formato inválido');
+          for (const s of data.sets) {
+            s.id = actId();
+            for (const a of s.actions||[]) {
+              a.id = actId();
+              for (const st of a.steps||[]) st.id = actId();
+            }
+            State.actions.sets.push(s);
+          }
+          actionsPersist();
+          actionsRender();
+          showToast(`Importado: ${data.sets.length} conjunto(s)`,'success');
         }
-        actionsPersist();
-        actionsRender();
-        showToast(`Importado: ${data.sets.length} conjunto(s)`,'success');
       } catch(err) {
         showToast('Archivo inválido: '+err.message,'error');
+        console.error(err);
       }
     };
-    reader.readAsText(f);
+    if (isAtn) reader.readAsArrayBuffer(f);
+    else reader.readAsText(f);
   };
   inp.click();
+}
+
+/* =====================================================================
+   PARSER DE ARCHIVOS .atn (Photoshop Actions)
+   -----------------------------------------------------------------------
+   El formato .atn es binario big-endian con estructura compleja basada en
+   Action Manager Descriptors de Adobe. Este parser es una aproximación
+   práctica: extrae nombres de conjunto y acciones, y los "event IDs" de
+   cada paso, pero no traduce los parámetros (eso requeriría mapear
+   cientos de claves propietarias). Los pasos se importan como
+   placeholders deshabilitados con el nombre del evento, para que Mario
+   pueda recrearlos manualmente con las operaciones del editor IDC.
+   ===================================================================== */
+function parseATN(bytes) {
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  let pos = 0;
+
+  const readUint16 = () => { const v = dv.getUint16(pos, false); pos += 2; return v; };
+  const readUint32 = () => { const v = dv.getUint32(pos, false); pos += 4; return v; };
+  const readInt32  = () => { const v = dv.getInt32(pos, false);  pos += 4; return v; };
+  const readByte   = () => { const v = dv.getUint8(pos);         pos += 1; return v; };
+
+  // Unicode Pascal-like string: uint32 length (chars), then length*2 bytes UTF-16 BE, possibly null-terminated
+  const readUnicodeString = () => {
+    if (pos + 4 > bytes.length) return '';
+    const len = readUint32();
+    if (len === 0 || len > 10000 || pos + len*2 > bytes.length) return '';
+    let str = '';
+    for (let i=0; i<len; i++) {
+      const code = readUint16();
+      if (code !== 0) str += String.fromCharCode(code);
+    }
+    return str.trim();
+  };
+
+  // Charset-ID string: uint32 length, then ASCII bytes (si len==0 → 4 bytes)
+  const readCharsetID = () => {
+    if (pos + 4 > bytes.length) return '';
+    const len = readUint32();
+    if (len === 0) {
+      // 4 bytes ID
+      if (pos + 4 > bytes.length) return '';
+      let s = ''; for (let i=0; i<4; i++) s += String.fromCharCode(readByte());
+      return s.trim();
+    } else {
+      if (pos + len > bytes.length) return '';
+      let s = ''; for (let i=0; i<len; i++) s += String.fromCharCode(readByte());
+      return s;
+    }
+  };
+
+  // Estrategia robusta: escanear el buffer buscando strings Unicode precedidos de uint32 length.
+  // Para cada hit que parezca nombre (ASCII imprimible), lo guardamos.
+  // También buscamos tokens conocidos como 4-char IDs que son eventos de Photoshop.
+  const KNOWN_EVENT_NAMES = {
+    'Mk  ': 'Make', 'Opn ':'Open', 'Cls ':'Close', 'save':'Save', 'Exit':'Quit',
+    'copy':'Copy', 'past':'Paste', 'Dplc':'Duplicate', 'Dlt ':'Delete', 'ShW ':'Show',
+    'HdW ':'Hide', 'slct':'Select', 'setd':'Set', 'move':'Move', 'trnf':'Transform',
+    'crop':'Crop', 'Rsz ':'Resize', 'Rtte':'Rotate', 'flpH':'FlipHorizontal',
+    'flpV':'FlipVertical', 'Flip':'Flip', 'invs':'InvertSelection', 'fill':'Fill',
+    'strk':'Stroke', 'brts':'BrightnessContrast', 'Lvls':'Levels', 'Crvs':'Curves',
+    'HStr':'HueSaturation', 'ClrB':'ColorBalance', 'Blr ':'Blur', 'GsnB':'GaussianBlur',
+    'USM ':'UnsharpMask', 'Shrp':'Sharpen', 'Nose':'Noise', 'Pstr':'Posterize',
+    'Thrs':'Threshold', 'Dsat':'Desaturate', 'Invr':'Invert', 'MrgL':'MergeLayers',
+    'Flat':'FlattenImage', 'Expr':'Export', 'Mn  ':'Mean', 'txt ':'Text',
+  };
+
+  // Primero intenta leer la cabecera propiamente:
+  let setName = '';
+  let actions = [];
+  try {
+    pos = 0;
+    const ver = readUint16();          // versión (16 típicamente)
+    if (ver < 8 || ver > 32) { pos = 0; throw new Error('Versión desconocida'); }
+    // Nombre del set (unicode)
+    setName = readUnicodeString();
+    // expanded byte
+    if (pos < bytes.length) readByte();
+    // número de acciones
+    if (pos + 4 > bytes.length) throw new Error('Estructura truncada');
+    const numActions = readUint32();
+    if (numActions > 1000 || numActions <= 0) throw new Error('Número de acciones fuera de rango');
+
+    for (let i=0; i<numActions; i++) {
+      const action = { name: '', shortcut: '', events: [] };
+      // shortcut index (int16 probably)
+      if (pos + 2 > bytes.length) break;
+      readUint16(); // function key index
+      if (pos + 1 > bytes.length) break;
+      readByte();   // shift key?
+      if (pos + 1 > bytes.length) break;
+      readByte();   // command key?
+      // color index
+      if (pos + 2 > bytes.length) break;
+      readUint16();
+      // nombre de la acción
+      action.name = readUnicodeString();
+      // expanded byte
+      if (pos < bytes.length) readByte();
+      // num de items (eventos)
+      if (pos + 4 > bytes.length) break;
+      const numItems = readUint32();
+      if (numItems > 1000 || numItems < 0) break;
+      for (let j=0; j<numItems; j++) {
+        // cada item: expanded, enabled, with-dialog, dialog-options, event-name, dict-name
+        if (pos + 4 > bytes.length) break;
+        readByte(); // expanded
+        readByte(); // enabled
+        readByte(); // with dialog
+        readByte(); // dialog options
+        // Event string (unicode) o 4-char ID. Probar unicode primero:
+        const savePos = pos;
+        let evName = readUnicodeString();
+        if (!evName || !_isPrintableStr(evName)) {
+          pos = savePos;
+          evName = readCharsetID();
+        }
+        // Si sigue siendo raro, marcar vacío y saltarnos lo desconocido hasta re-sincronizar
+        if (!evName) break;
+        action.events.push(KNOWN_EVENT_NAMES[evName] || evName);
+        // Skip dictionary/descriptor (longitud variable): leer 4 bytes como longitud opcional
+        // Como no podemos interpretar el descriptor, buscamos el próximo marker '8BIM'/'Actn'.
+        // Estrategia pragmática: avanzar hasta el próximo start-of-item token.
+        const nextStart = _findNextItemBoundary(bytes, pos);
+        if (nextStart > pos) pos = nextStart;
+      }
+      actions.push(action);
+      if (!action.name) break;
+    }
+  } catch (err) {
+    // Parser estructurado falló — caer a modo "scan" ligero
+    console.info('[IDC ATN] Parser estructurado falló, usando escaneo heurístico:', err.message);
+    actions = _atnHeuristicScan(bytes);
+    if (!setName) setName = 'Importado desde .atn';
+  }
+
+  // Si no conseguimos nada estructurado, intentar escaneo
+  if (!actions.length) {
+    actions = _atnHeuristicScan(bytes);
+    if (!setName) setName = 'Importado desde .atn';
+  }
+
+  // Limpiar acciones sin nombre
+  actions = actions.filter(a => a.name && _isPrintableStr(a.name));
+
+  return { setName: setName || 'Acciones importadas', actions };
+}
+
+/* Helper: cadena ASCII imprimible */
+function _isPrintableStr(s) {
+  if (!s || s.length === 0 || s.length > 200) return false;
+  let printable = 0;
+  for (let i=0; i<s.length; i++) {
+    const c = s.charCodeAt(i);
+    if (c >= 32 && c <= 126) printable++;
+    else if (c > 126 && c < 0x2E80) printable++; // latin extended, griego, cirílico, etc.
+  }
+  return printable / s.length > 0.6;
+}
+
+/* Helper: intenta encontrar el próximo marcador que indique inicio de otro item */
+function _findNextItemBoundary(bytes, from) {
+  // Buscar "!#" (Photoshop suele usar este separador) o "TEXT"/"DCT"/"null"
+  const markers = ['TEXT', 'null', 'DCT ', '8BIM', 'type', 'Nm  ', 'Ky  '];
+  let best = bytes.length;
+  for (const m of markers) {
+    const code = [m.charCodeAt(0), m.charCodeAt(1), m.charCodeAt(2), m.charCodeAt(3)];
+    for (let i=from; i<bytes.length-4; i++) {
+      if (bytes[i]===code[0] && bytes[i+1]===code[1] && bytes[i+2]===code[2] && bytes[i+3]===code[3]) {
+        if (i < best) best = i;
+        break;
+      }
+    }
+  }
+  return best;
+}
+
+/* Heurística de escaneo: busca strings Unicode BE largas y las considera posibles
+   nombres de acción. Útil cuando el parser estructurado no coincide con la versión. */
+function _atnHeuristicScan(bytes) {
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const found = [];
+  const seen = new Set();
+  for (let i=0; i<bytes.length-8; i++) {
+    // Intenta leer uint32 length seguido de string unicode BE
+    const len = dv.getUint32(i, false);
+    if (len >= 2 && len <= 120 && i + 4 + len*2 <= bytes.length) {
+      let ok = true, s = '';
+      for (let j=0; j<len; j++) {
+        const hi = bytes[i + 4 + j*2];
+        const lo = bytes[i + 4 + j*2 + 1];
+        if (hi !== 0) { ok = false; break; } // solo acepta ASCII/Latin-1 puro
+        if (lo < 32 || (lo > 126 && lo < 160)) { ok = false; break; }
+        s += String.fromCharCode(lo);
+      }
+      if (ok && _isPrintableStr(s) && !seen.has(s)) {
+        seen.add(s);
+        found.push({ name: s, pos: i });
+        i += 4 + len*2 - 1;
+      }
+    }
+  }
+  // Filtra: los nombres útiles son acciones (no "8BIMActn" internals ni strings demasiado cortos)
+  const names = found
+    .filter(f => f.name.length >= 3 && !/^[A-Z]{4}$/.test(f.name) && !['null','true','false','TEXT'].includes(f.name))
+    .map(f => ({ name: f.name, shortcut: '', events: [] }));
+  return names;
+}
+
+/* Reporte tras importar ATN */
+function modalATNImportReport(result, setName) {
+  const totalEvents = result.actions.reduce((sum, a) => sum + (a.events?.length||0), 0);
+  const html = `
+    <div class="modal-header"><h2>Importación de .atn</h2><button class="modal-close">×</button></div>
+    <div class="modal-body" style="max-width:520px">
+      <p style="margin:0 0 10px 0"><strong>Conjunto importado:</strong> "${escapeHtml(setName)}"</p>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:12px">
+        <div style="padding:8px; background:#232323; border-radius:4px">
+          <div style="font-size:10px; color:var(--text-faint)">Acciones detectadas</div>
+          <div style="font-size:20px; color:var(--idc-orange); font-weight:600">${result.actions.length}</div>
+        </div>
+        <div style="padding:8px; background:#232323; border-radius:4px">
+          <div style="font-size:10px; color:var(--text-faint)">Pasos detectados</div>
+          <div style="font-size:20px; color:var(--idc-orange); font-weight:600">${totalEvents}</div>
+        </div>
+      </div>
+      <p style="margin:0 0 10px 0; padding:10px; background:#3a2a1a; border-left:3px solid var(--idc-orange); border-radius:4px; font-size:12px; line-height:1.5">
+        <strong>Aviso importante.</strong> Los archivos .atn de Photoshop contienen instrucciones propietarias
+        (Action Manager Descriptors) que describen cientos de operaciones específicas de ese software.
+        IDC Editor implementa un subconjunto de operaciones y no puede traducir automáticamente cada paso.
+      </p>
+      <p style="margin:0 0 8px 0; font-size:12px"><strong>Lo que se importó:</strong></p>
+      <ul style="margin:0 0 12px 18px; font-size:12px; color:var(--text-dim); line-height:1.6">
+        <li>Los nombres de las acciones y de sus pasos.</li>
+        <li>Los pasos quedan <strong>deshabilitados</strong> como placeholders con el nombre del evento original.</li>
+      </ul>
+      <p style="margin:0 0 8px 0; font-size:12px"><strong>Lo que debes hacer:</strong></p>
+      <ul style="margin:0 0 12px 18px; font-size:12px; color:var(--text-dim); line-height:1.6">
+        <li>Abre el conjunto importado en el panel de Acciones.</li>
+        <li>Para cada acción, recréala manualmente: selecciona la acción → pulsa ● (Grabar) → ejecuta las operaciones IDC equivalentes.</li>
+        <li>Elimina los placeholders deshabilitados cuando los reemplaces por pasos reales.</li>
+      </ul>
+      ${result.actions.length > 0 ? `
+      <details style="margin-top:10px">
+        <summary style="cursor:pointer; color:var(--text-dim); font-size:11px">Ver lista de acciones importadas</summary>
+        <ul style="margin:8px 0 0 18px; font-size:11px; color:var(--text); max-height:150px; overflow-y:auto">
+          ${result.actions.map(a => `<li>${escapeHtml(a.name)}${a.events?.length?` <span style="color:var(--text-faint)">(${a.events.length} pasos)</span>`:''}</li>`).join('')}
+        </ul>
+      </details>` : ''}
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn primary" data-ok>Entendido</button>
+    </div>`;
+  showModal(html, { onMount(m, close) { m.querySelector('[data-ok]').onclick = ()=>close(true); } });
 }
 
 /* ---------- Factory presets ---------- */
@@ -4677,7 +5629,7 @@ function attachKeyboard() {
   const TOOL_KEYS = {
     v:'move', m:'marquee', l:'lasso', c:'crop', i:'eyedropper',
     b:'brush', n:'pencil', e:'eraser', g:'bucket', t:'text',
-    u:'rect', h:'hand', z:'zoom'
+    u:'rect', h:'hand', z:'zoom', p:'pen'
   };
   document.addEventListener('keydown', (e) => {
     // Ignore if typing in input
@@ -4724,8 +5676,15 @@ function attachKeyboard() {
     if (k === '[') { State.brushSize = Math.max(1, State.brushSize-2); renderOptionsBar(); return; }
     if (k === '?' || (e.shiftKey && k === '/')) { modalShortcuts(); return; }
     if (k === 'f11' || e.key === 'F11') { e.preventDefault(); toggleFullscreen(); return; }
-    if (k === 'enter' && State.tool === 'crop' && State.selection) { cropToSelection(); return; }
-    if (k === 'escape') { closeAllMenus(); deselect(); return; }
+    if (k === 'enter' && State.tool === 'crop' && State.cropBox && State.cropBox.active) { e.preventDefault(); commitCrop(); return; }
+    if (k === 'enter' && State.tool === 'pen' && State.penPoints && State.penPoints.length >= 2) { e.preventDefault(); penCommit(false); return; }
+    if (k === 'escape') {
+      closeAllMenus();
+      if (State.cropBox) cancelCrop();
+      else if (State.penPoints) penCancel();
+      else deselect();
+      return;
+    }
     if (TOOL_KEYS[k]) { setTool(TOOL_KEYS[k]); return; }
   });
   document.addEventListener('keyup', (e) => {
@@ -4775,7 +5734,43 @@ function updateOnline() {
 function init() {
   // Color picker
   dom.colorPicker.addEventListener('input', (e) => setColor(e.target.value, 'fg'));
-  dom.hexInput.addEventListener('change', (e) => setColor(e.target.value, 'fg'));
+  // Input HEX con feedback en vivo, Enter aplica, Shift+Click sobre color frontal aplica a fondo
+  dom.hexInput.addEventListener('input', (e) => {
+    const val = e.target.value;
+    const normalized = normalizeHex(val);
+    if (normalized) {
+      e.target.classList.remove('invalid');
+    } else {
+      e.target.classList.add('invalid');
+    }
+  });
+  const applyHexInput = () => {
+    const n = normalizeHex(dom.hexInput.value);
+    if (n) { setColor(n, 'fg'); dom.hexInput.classList.remove('invalid'); }
+    else { dom.hexInput.classList.add('invalid'); showToast('Código HEX inválido', 'error'); }
+  };
+  dom.hexInput.addEventListener('change', applyHexInput);
+  dom.hexInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); applyHexInput(); dom.hexInput.blur(); }
+  });
+  // Botón pegar desde portapapeles
+  const btnPasteHex = $('#btnPasteHex');
+  if (btnPasteHex) {
+    btnPasteHex.addEventListener('click', async () => {
+      try {
+        const txt = await navigator.clipboard.readText();
+        // Extraer primer hex válido del texto pegado
+        const match = txt.match(/#?[0-9a-f]{6}|#?[0-9a-f]{3}/i);
+        if (match) {
+          const n = normalizeHex(match[0]);
+          if (n) { setColor(n, 'fg'); showToast(`Color aplicado: ${n.toUpperCase()}`, 'success'); return; }
+        }
+        showToast('El portapapeles no contiene un código HEX válido', 'error');
+      } catch(err) {
+        showToast('No se pudo leer el portapapeles', 'error');
+      }
+    });
+  }
   dom.rIn.addEventListener('input', () => setColor(rgbToHex(+dom.rIn.value, +dom.gIn.value, +dom.bIn.value), 'fg'));
   dom.gIn.addEventListener('input', () => setColor(rgbToHex(+dom.rIn.value, +dom.gIn.value, +dom.bIn.value), 'fg'));
   dom.bIn.addEventListener('input', () => setColor(rgbToHex(+dom.rIn.value, +dom.gIn.value, +dom.bIn.value), 'fg'));
